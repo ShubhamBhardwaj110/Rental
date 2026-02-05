@@ -1,0 +1,113 @@
+<body>
+    <% layout("/layouts/boilerplate") %>
+        <style>
+
+
+        </style>
+        <div id="filters" class="d-flex justify-content-start align-items-center gap-3 mt-4 mb-4 ps-3">
+            <!-- Filter/Cancel Button -->
+            <div id="filterToggle" class="filter-toggle">
+                <% if (currentFilter) { %>
+                    <button class="btn btn-outline-secondary" onclick="clearFilter()">
+                        <i class="fa-solid fa-xmark"></i>
+                        <span>Cancel</span>
+                    </button>
+                <% } else { %>
+                    <button class="btn btn-outline-primary">
+                        <i class="fa-solid fa-filter"></i>
+                        <span>Filter</span>
+                    </button>
+                <% } %>
+            </div>
+            
+            <div class="filter <%= currentFilter === 'trending' ? 'active' : '' %>" onclick="applyFilter('trending')">
+                <i class="fa-solid fa-fire"></i>
+                <span>Trending</span>
+            </div>
+            <div class="filter <%= currentFilter === 'nearby' ? 'active' : '' %>" onclick="applyFilter('nearby')">
+                <i class="fa-solid fa-location-dot"></i>
+                <span>Nearby</span>
+            </div>
+            <div class="filter <%= currentFilter === 'toprated' ? 'active' : '' %>" onclick="applyFilter('toprated')">
+                <i class="fa-solid fa-star"></i>
+                <span>Top Rated</span>
+            </div>
+            <div class="filter <%= currentFilter === 'budgetfriendly' ? 'active' : '' %>" onclick="applyFilter('budgetfriendly')">
+                <i class="fa-solid fa-dollar-sign"></i>
+                <span>Budget Friendly</span>
+            </div>
+            <div class="filter <%= currentFilter === 'international' ? 'active' : '' %>" onclick="applyFilter('international')">
+                <i class="fa-solid fa-globe"></i>
+                <span>International</span>
+            </div>
+            <div class="filter <%= currentFilter === 'adventure' ? 'active' : '' %>" onclick="applyFilter('adventure')">
+                <i class="fa-solid fa-mountain"></i>
+                <span>Adventure</span>
+            </div>
+            <div class="filter <%= currentFilter === 'urban' ? 'active' : '' %>" onclick="applyFilter('urban')">
+                <i class="fa-solid fa-city"></i>
+                <span>Urban</span>
+            </div>
+            <div class="filter <%= currentFilter === 'nature' ? 'active' : '' %>" onclick="applyFilter('nature')">
+                <i class="fa-solid fa-tree"></i>
+                <span>Nature</span>
+            </div>
+            <div class="tax-toggle-switch">
+                <div class="form-check-reverse form-switch">
+                    <input class="form-check-input" type="checkbox" id="flexSwitchCheckDefault">
+                    <label class="form-check-label" for="flexSwitchCheckDefault">Display After Tax</label>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="row row-cols-lg-3 row-cols-md-2 row-cols-sm-1 mt-3">
+            <% for(let listing of allListings){ %>
+                <a href="/listings/<%=listing._id%>" class="listing-link">
+                    <div class="card col listing-card">
+                        <img src="<%=listing.image.url%>" class="card-img-top" alt="listing-images"
+                            style="width: 20rem">
+                        <div class="card-img-overlay"></div>
+                        <div class="card-body">
+                            <p class="card-text">
+                                <br><b>
+                                    <%= listing.title %>
+                                </b><br>
+                                <span class="price-display" data-base="<%= listing.price %>"
+                                    data-tax="<%= Math.round(listing.price * 1.13) %>">
+                                    $<%= listing.price.toLocaleString("en-CA") %> /2 nights
+                                </span>
+                            </p>
+
+                        </div>
+                    </div>
+                </a>
+                <%}%>
+        </div>
+
+        <script>
+            const taxToggle = document.getElementById("flexSwitchCheckDefault");
+            const priceElements = document.querySelectorAll(".price-display");
+
+            taxToggle.addEventListener("change", () => {
+                priceElements.forEach(el => {
+                    const base = parseInt(el.dataset.base);
+                    const tax = parseInt(el.dataset.tax);
+                    const display = taxToggle.checked
+                        ? `$${tax.toLocaleString("en-CA")} /2 nights (incl. 13% HST)`
+                        : `$${base.toLocaleString("en-CA")} /2 nights`;
+                    el.textContent = display;
+                });
+            });
+
+            // Filter functionality
+            function applyFilter(filterType) {
+                window.location.href = `/listings?filter=${filterType}`;
+            }
+
+            function clearFilter() {
+                window.location.href = '/listings';
+            }
+        </script>
+
+</body>

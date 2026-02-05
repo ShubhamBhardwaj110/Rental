@@ -1,0 +1,337 @@
+<% layout("layouts/boilerplate") %>
+<script>
+    const mapToken = "<%= process.env.MAPBOX_TOKEN %>";
+    const coordinates = "<%= JSON.stringify(listing.geometry.coordinates) %>";
+    const title = "<%= listing.title %>";
+    const listingLocation = "<%= listing.location %>";
+</script>
+
+<div class="listing-detail-container">
+    <!-- Header Section -->
+    <div class="container">
+        <div class="listing-header-section">
+            <div class="row">
+                <div class="col-12">
+                    <h1 class="listing-main-title"><%= listing.title %></h1>
+                    <div class="listing-location-info">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span><%= listing.location %>, <%= listing.country %></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container mt-4">
+        <div class="row">
+            <!-- Left Column -->
+            <div class="col-lg-8">
+                <!-- Featured Image -->
+                <div class="featured-image-container mb-4">
+                    <img src="<%= listing.image.url %>" class="featured-image" alt="<%= listing.title %>" />
+                </div>
+
+                <!-- Host Information -->
+                <div class="host-section mb-4">
+                    <div class="host-card">
+                        <div class="host-avatar-section">
+                            <div class="host-avatar">
+                                <i class="fas fa-user-circle"></i>
+                            </div>
+                            <div class="host-info">
+                                <h5 class="host-name">Hosted by <%= listing.owner.username %></h5>
+                                <p class="host-status">Experienced Host</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Property Features -->
+                <div class="property-features mb-4">
+                    <div class="features-grid">
+                        <div class="feature-item">
+                            <i class="fas fa-home"></i>
+                            <span>Entire place</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-users"></i>
+                            <span>Up to 4 guests</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-bed"></i>
+                            <span>Comfortable beds</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-wifi"></i>
+                            <span>Free WiFi</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Description -->
+                <div class="description-section mb-4">
+                    <h4 class="section-heading">About this place</h4>
+                    <p class="property-description"><%= listing.description %></p>
+                </div>
+            </div>
+
+            <!-- Right Column - Booking Card -->
+            <div class="col-lg-4">
+                <div class="booking-sidebar">
+                    <div class="price-header">
+                        <div class="price-display">
+                            <span class="price-amount">$<%= listing.price.toLocaleString("en-CA") %></span>
+                            <span class="price-period">per 2 nights</span>
+                        </div>
+                    </div>
+                    
+                    <div class="booking-form-section">
+                        <div class="check-dates">
+                            <div class="date-picker-group">
+                                <div class="date-input-wrapper">
+                                    <label>Check-in</label>
+                                    <input type="date" class="date-input">
+                                </div>
+                                <div class="date-input-wrapper">
+                                    <label>Check-out</label>
+                                    <input type="date" class="date-input">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="guest-selection mt-3">
+                            <label>Guests</label>
+                            <select class="guest-dropdown">
+                                <option value="1">1 guest</option>
+                                <option value="2">2 guests</option>
+                                <option value="3">3 guests</option>
+                                <option value="4">4 guests</option>
+                            </select>
+                        </div>
+                        
+                        <button class="reserve-button mt-4">
+                            Reserve Now
+                        </button>
+                        
+                        <p class="no-charge-text">You won't be charged yet</p>
+                        
+                        <div class="pricing-breakdown">
+                            <div class="price-line">
+                                <span>$<%= listing.price.toLocaleString("en-CA") %> × 2 nights</span>
+                                <span>$<%= (listing.price * 2).toLocaleString("en-CA") %></span>
+                            </div>
+                            <div class="price-line">
+                                <span>Service fee</span>
+                                <span>$<%= Math.round(listing.price * 0.05) %></span>
+                            </div>
+                            <div class="price-divider"></div>
+                            <div class="price-line total-price">
+                                <span>Total</span>
+                                <span>$<%= (listing.price * 2 + Math.round(listing.price * 0.05)).toLocaleString("en-CA") %></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Owner Actions -->
+<% if (currentUser && currentUser._id.equals(listing.owner._id)) { %>
+<div class="container mt-5">
+    <div class="owner-management-section">
+        <div class="management-card">
+            <h5 class="management-title">
+                <i class="fas fa-cog"></i> Manage Your Property
+            </h5>
+            <div class="management-actions">
+                <a href="/listings/<%= listing._id %>/edit" class="action-btn edit-btn">
+                    <i class="fas fa-edit"></i>
+                    <span>Edit Details</span>
+                </a>
+                <a href="/listings" class="action-btn home-btn">
+                    <i class="fas fa-list"></i>
+                    <span>All Listings</span>
+                </a>
+                <form method="POST" action="/listings/<%= listing._id %>?_method=DELETE" class="d-inline">
+                    <button type="submit" class="action-btn delete-btn" onclick="return confirm('Delete this listing permanently?')">
+                        <i class="fas fa-trash"></i>
+                        <span>Delete</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<% } %>
+
+<!-- Reviews Section -->
+<div class="container mt-5">
+    <div class="reviews-container">
+        <% if (currentUser) { %>
+            <div class="add-review-section">
+                <h4 class="reviews-title">
+                    <i class="fas fa-comment-dots"></i> Share Your Experience
+                </h4>
+                <form action="/listings/<%= listing.id %>/reviews" method="POST" novalidate class="review-form needs-validation">
+                    <div class="rating-input-section">
+                        <label class="rating-label">Rate your stay</label>
+                        <fieldset class="starability-coinFlip">
+                            <input type="radio" id="no-rate" class="input-no-rate" name="review[rating]" value="0" checked aria-label="No rating." />
+                            <input type="radio" id="first-rate1" name="review[rating]" value="1" />
+                            <label for="first-rate1" title="Poor">1 star</label>
+                            <input type="radio" id="first-rate2" name="review[rating]" value="2" />
+                            <label for="first-rate2" title="Fair">2 stars</label>
+                            <input type="radio" id="first-rate3" name="review[rating]" value="3" />
+                            <label for="first-rate3" title="Good">3 stars</label>
+                            <input type="radio" id="first-rate4" name="review[rating]" value="4" />
+                            <label for="first-rate4" title="Very good">4 stars</label>
+                            <input type="radio" id="first-rate5" name="review[rating]" value="5" />
+                            <label for="first-rate5" title="Excellent">5 stars</label>
+                        </fieldset>
+                    </div>
+
+                    <div class="comment-input-section">
+                        <label for="comment" class="comment-label">Tell us about your experience</label>
+                        <textarea name="review[comment]" id="comment" rows="4" class="comment-textarea" 
+                            placeholder="What made your stay special?" required></textarea>
+                        <div class="invalid-feedback">Please share your experience</div>
+                    </div>
+
+                    <button type="submit" class="submit-review-button">
+                        <i class="fas fa-paper-plane"></i> Post Review
+                    </button>
+                </form>
+            </div>
+        <% } %>
+
+        <% if (listing.reviews.length > 0) { %>
+            <div class="existing-reviews-section mt-5">
+                <h4 class="reviews-title">
+                    <i class="fas fa-star"></i> Guest Reviews
+                    <span class="review-count">(<%= listing.reviews.length %> <%= listing.reviews.length === 1 ? 'review' : 'reviews' %>)</span>
+                </h4>
+                <div class="reviews-list">
+                    <% for (let review of listing.reviews) { %>
+                        <div class="review-item">
+                            <div class="review-header">
+                                <div class="reviewer-profile">
+                                    <div class="reviewer-avatar">
+                                        <i class="fas fa-user-circle"></i>
+                                    </div>
+                                    <div class="reviewer-info">
+                                        <h6 class="reviewer-name"><%= review.author.username %></h6>
+                                        <div class="review-stars">
+                                            <p class="starability-result" data-rating="<%= review.rating %>"></p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <% if (currentUser && (currentUser._id.equals(review.author._id) || currentUser._id.equals(listing.owner._id))) { %>
+                                    <div class="review-actions">
+                                        <% if (currentUser && currentUser._id.equals(review.author._id)) { %>
+                                            <button type="button" class="edit-review-btn" title="Edit review" onclick="toggleEditForm('<%= review._id %>')">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                        <% } %>
+                                        <form method="POST" action="/listings/<%= listing._id %>/reviews/<%= review._id %>?_method=DELETE" class="delete-review-form d-inline">
+                                            <button type="submit" class="delete-review-btn" title="Delete review" onclick="return confirm('Are you sure you want to delete this review?')">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                <% } %>
+                            </div>
+                            <div class="review-content">
+                                <div id="review-display-<%= review._id %>" class="review-display">
+                                    <p class="review-comment"><%= review.comment %></p>
+                                </div>
+                                <% if (currentUser && currentUser._id.equals(review.author._id)) { %>
+                                    <div id="edit-form-<%= review._id %>" class="edit-review-form" style="display: none;">
+                                        <form method="POST" action="/listings/<%= listing._id %>/reviews/<%= review._id %>?_method=PUT" class="needs-validation" novalidate>
+                                            <div class="rating-input-section mb-3">
+                                                <label class="rating-label">Update your rating</label>
+                                                <fieldset class="starability-coinFlip">
+                                                    <input type="radio" id="no-rate-edit-<%= review._id %>" class="input-no-rate" name="review[rating]" value="0" />
+                                                    <input type="radio" id="edit-rate1-<%= review._id %>" name="review[rating]" value="1" <%= review.rating == 1 ? 'checked' : '' %> />
+                                                    <label for="edit-rate1-<%= review._id %>" title="Poor">1 star</label>
+                                                    <input type="radio" id="edit-rate2-<%= review._id %>" name="review[rating]" value="2" <%= review.rating == 2 ? 'checked' : '' %> />
+                                                    <label for="edit-rate2-<%= review._id %>" title="Fair">2 stars</label>
+                                                    <input type="radio" id="edit-rate3-<%= review._id %>" name="review[rating]" value="3" <%= review.rating == 3 ? 'checked' : '' %> />
+                                                    <label for="edit-rate3-<%= review._id %>" title="Good">3 stars</label>
+                                                    <input type="radio" id="edit-rate4-<%= review._id %>" name="review[rating]" value="4" <%= review.rating == 4 ? 'checked' : '' %> />
+                                                    <label for="edit-rate4-<%= review._id %>" title="Very good">4 stars</label>
+                                                    <input type="radio" id="edit-rate5-<%= review._id %>" name="review[rating]" value="5" <%= review.rating == 5 ? 'checked' : '' %> />
+                                                    <label for="edit-rate5-<%= review._id %>" title="Excellent">5 stars</label>
+                                                </fieldset>
+                                            </div>
+                                            <div class="comment-input-section mb-3">
+                                                <label for="edit-comment-<%= review._id %>" class="comment-label">Update your review</label>
+                                                <textarea name="review[comment]" id="edit-comment-<%= review._id %>" rows="3" class="comment-textarea" required><%= review.comment %></textarea>
+                                                <div class="invalid-feedback">Please share your experience</div>
+                                            </div>
+                                            <div class="edit-actions">
+                                                <button type="submit" class="btn btn-success btn-sm">
+                                                    <i class="fas fa-check"></i> Save Changes
+                                                </button>
+                                                <button type="button" class="btn btn-secondary btn-sm ms-2" onclick="cancelEdit('<%= review._id %>')">
+                                                    <i class="fas fa-times"></i> Cancel
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                <% } %>
+                            </div>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+        <% } %>
+    </div>
+</div>
+
+<!-- Location Section -->
+<div class="container mt-5 mb-5">
+    <div class="location-section">
+        <h4 class="location-title">
+            <i class="fas fa-map-marked-alt"></i> Location & Neighborhood
+        </h4>
+        <div class="map-wrapper">
+            <div id="map"></div>
+        </div>
+        <div class="location-info">
+            <p class="location-description">
+                <i class="fas fa-info-circle"></i>
+                Located in <strong><%= listing.location %>, <%= listing.country %></strong>. 
+                The exact address will be shared after booking confirmation.
+            </p>
+        </div>
+    </div>
+</div>
+
+<script src="/js/map.js"></script>
+<script>
+function toggleEditForm(reviewId) {
+    const displayDiv = document.getElementById(`review-display-${reviewId}`);
+    const editDiv = document.getElementById(`edit-form-${reviewId}`);
+    
+    if (displayDiv && editDiv) {
+        displayDiv.style.display = 'none';
+        editDiv.style.display = 'block';
+    }
+}
+
+function cancelEdit(reviewId) {
+    const displayDiv = document.getElementById(`review-display-${reviewId}`);
+    const editDiv = document.getElementById(`edit-form-${reviewId}`);
+    
+    if (displayDiv && editDiv) {
+        displayDiv.style.display = 'block';
+        editDiv.style.display = 'none';
+    }
+}
+</script>
+
+
+
