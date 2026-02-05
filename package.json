@@ -1,4 +1,4 @@
-{
+{"engines":{"node":"22.12.0" },
   "name": "major-project",
   "version": "1.0.0",
   "description": "",
