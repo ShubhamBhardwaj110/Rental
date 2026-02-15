@@ -87,32 +87,41 @@
                     </div>
                     
                     <div class="booking-form-section">
-                        <div class="check-dates">
-                            <div class="date-picker-group">
-                                <div class="date-input-wrapper">
-                                    <label>Check-in</label>
-                                    <input type="date" class="date-input">
-                                </div>
-                                <div class="date-input-wrapper">
-                                    <label>Check-out</label>
-                                    <input type="date" class="date-input">
+                        <form id="reservationForm" class="reservation-form">
+                            <div class="check-dates">
+                                <div class="date-picker-group">
+                                    <div class="date-input-wrapper">
+                                        <label>Check-in</label>
+                                        <input type="date" id="checkinDate" class="date-input" required>
+                                    </div>
+                                    <div class="date-input-wrapper">
+                                        <label>Check-out</label>
+                                        <input type="date" id="checkoutDate" class="date-input" required>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        
-                        <div class="guest-selection mt-3">
-                            <label>Guests</label>
-                            <select class="guest-dropdown">
-                                <option value="1">1 guest</option>
-                                <option value="2">2 guests</option>
-                                <option value="3">3 guests</option>
-                                <option value="4">4 guests</option>
-                            </select>
-                        </div>
-                        
-                        <button class="reserve-button mt-4">
-                            Reserve Now
-                        </button>
+                            
+                            <div class="guest-selection mt-3">
+                                <label>Guests</label>
+                                <select id="guestCount" class="guest-dropdown" required>
+                                    <option value="">Select guests</option>
+                                    <option value="1">1 guest</option>
+                                    <option value="2">2 guests</option>
+                                    <option value="3">3 guests</option>
+                                    <option value="4">4 guests</option>
+                                </select>
+                            </div>
+                            
+                            <% if(currentUser) { %>
+                                <button type="submit" class="reserve-button mt-4">
+                                    Reserve Now
+                                </button>
+                            <% } else { %>
+                                <a href="/login" class="reserve-button mt-4" style="display: flex; align-items: center; justify-content: center; text-decoration: none;">
+                                    Login to Reserve
+                                </a>
+                            <% } %>
+                        </form>
                         
                         <p class="no-charge-text">You won't be charged yet</p>
                         
@@ -312,6 +321,122 @@
 
 <script src="/js/map.js"></script>
 <script>
+// Booking functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const reservationForm = document.getElementById('reservationForm');
+    const checkinInput = document.getElementById('checkinDate');
+    const checkoutInput = document.getElementById('checkoutDate');
+    
+    // Only proceed if user is logged in and form exists
+    if (!reservationForm) return;
+    
+    // Set minimum date to today
+    const today = new Date().toISOString().split('T')[0];
+    if (checkinInput) checkinInput.min = today;
+    if (checkoutInput) checkoutInput.min = today;
+    
+    // Update checkout minimum when checkin changes
+    if (checkinInput) {
+        checkinInput.addEventListener('change', function() {
+            const checkinDate = new Date(this.value);
+            const nextDay = new Date(checkinDate);
+            nextDay.setDate(checkinDate.getDate() + 1);
+            if (checkoutInput) {
+                checkoutInput.min = nextDay.toISOString().split('T')[0];
+                
+                // Clear checkout if it's before new minimum
+                if (checkoutInput.value && new Date(checkoutInput.value) <= checkinDate) {
+                    checkoutInput.value = '';
+                }
+            }
+        });
+    }
+    
+    // Form submission handler
+    if (reservationForm) {
+        reservationForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const checkin = checkinInput ? checkinInput.value : '';
+            const checkout = checkoutInput ? checkoutInput.value : '';
+            const guestField = document.getElementById('guestCount');
+            const guests = guestField ? guestField.value : '';
+            
+            // Validation
+            if (!checkin || !checkout || !guests) {
+                showMessage('Please fill in all fields to continue with your reservation.', 'warning');
+                return;
+            }
+            
+            const checkinDate = new Date(checkin);
+            const checkoutDate = new Date(checkout);
+            
+            if (checkoutDate <= checkinDate) {
+                showMessage('Check-out date must be after check-in date.', 'error');
+                return;
+            }
+            
+            // Calculate nights and total
+            const nights = Math.ceil((checkoutDate - checkinDate) / (1000 * 60 * 60 * 24));
+            const pricePerNight = <%= listing.price %>;
+            const subtotal = pricePerNight * nights;
+            const serviceFee = Math.round(pricePerNight * 0.05);
+            const total = subtotal + serviceFee;
+            
+            // Show success message
+            const message = `
+                Reservation Request Submitted! 
+                
+                📅 ${checkin} to ${checkout} (${nights} ${nights === 1 ? 'night' : 'nights'})
+                👥 ${guests} ${guests === '1' ? 'guest' : 'guests'}
+                💰 Total: $${total.toLocaleString("en-CA")}
+                
+                Your reservation request has been sent to the host. You'll receive a confirmation email shortly!
+            `;
+            
+            showMessage(message, 'success');
+            
+            // Optional: Reset form after success
+            setTimeout(() => {
+                reservationForm.reset();
+            }, 2000);
+        });
+    }
+});
+
+// Message display function
+function showMessage(message, type) {
+    // Remove existing message if any
+    const existing = document.querySelector('.booking-message');
+    if (existing) existing.remove();
+    
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `booking-message booking-message-${type}`;
+    messageDiv.innerHTML = `
+        <div class="message-content">
+            <i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i>
+            <span>${message.replace(/\n/g, '<br>')}</span>
+            <button class="close-message" onclick="this.parentElement.parentElement.remove()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    `;
+    
+    // Insert after the reserve button
+    const reserveButton = document.querySelector('.reserve-button');
+    reserveButton.parentNode.insertBefore(messageDiv, reserveButton.nextSibling);
+    
+    // Auto-remove success messages after 5 seconds
+    if (type === 'success') {
+        setTimeout(() => {
+            if (messageDiv.parentNode) {
+                messageDiv.remove();
+            }
+        }, 5000);
+    }
+}
+
+// Review functions
 function toggleEditForm(reviewId) {
     const displayDiv = document.getElementById(`review-display-${reviewId}`);
     const editDiv = document.getElementById(`edit-form-${reviewId}`);
