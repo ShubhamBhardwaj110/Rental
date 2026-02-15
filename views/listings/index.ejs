@@ -34,7 +34,7 @@
             </div>
             <div class="filter <%= currentFilter === 'budgetfriendly' ? 'active' : '' %>" onclick="applyFilter('budgetfriendly')">
                 <i class="fa-solid fa-dollar-sign"></i>
-                <span>Budget Friendly</span>
+                <span>Budget</span>
             </div>
             <div class="filter <%= currentFilter === 'international' ? 'active' : '' %>" onclick="applyFilter('international')">
                 <i class="fa-solid fa-globe"></i>
@@ -55,8 +55,7 @@
             <div class="tax-toggle-switch">
                 <div class="form-check-reverse form-switch">
                     <input class="form-check-input" type="checkbox" id="flexSwitchCheckDefault">
-                    <label class="form-check-label" for="flexSwitchCheckDefault">Display After Tax</label>
-
+                    <label class="form-check-label" for="flexSwitchCheckDefault"><span class="d-none d-lg-inline">Display After Tax</span><span class="d-lg-none">Tax</span></label>
                 </div>
             </div>
         </div>

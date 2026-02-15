@@ -8,13 +8,71 @@ body {
     margin-left: none;
 }
 
+/* Mobile-first improvements */
+* {
+    box-sizing: border-box;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+}
+
 .container {
     flex: 1;
+}
+
+/* Improve touch targets for mobile */
+.btn, .nav-link, .filter {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .navbar {
     height: 5rem;
     background-color: transparent;
+}
+
+/* Mobile navbar improvements */
+@media (max-width: 767.98px) {
+    .navbar {
+        min-height: 4rem;
+        height: auto;
+        padding: 8px 0;
+    }
+    
+    .navbar-brand {
+        font-size: 1.5rem;
+    }
+    
+    .navbar-toggler {
+        border: none;
+        padding: 4px 8px;
+        margin-left: 8px;
+    }
+    
+    .navbar-toggler:focus {
+        box-shadow: none;
+    }
+    
+    /* Mobile search form styling */
+    .navbar .search-input {
+        height: 38px;
+        border-radius: 20px;
+        border: 1px solid #ddd;
+    }
+    
+    .navbar .search-btn {
+        height: 38px;
+        border-radius: 50%;
+        width: 38px;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
 }
 
 .fa-signs-post {
@@ -899,5 +957,157 @@ body {
     
     .action-btn {
         justify-content: center;
+    }
+    
+    /* Mobile-specific improvements */
+    
+    /* Filters - horizontal scroll on mobile */
+    #filters {
+        overflow-x: auto;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+        padding: 12px 16px;
+    }
+    
+    #filters::-webkit-scrollbar {
+        display: none;
+    }
+    
+    #filters .filter {
+        flex-shrink: 0;
+        min-width: 80px;
+        font-size: 12px;
+        padding: 8px 12px;
+    }
+    
+    #filters .filter i {
+        font-size: 16px;
+    }
+    
+    /* Tax toggle adjustments for mobile */
+    .tax-toggle-switch {
+        margin-left: 16px;
+        margin-right: 16px;
+        flex-shrink: 0;
+        font-size: 13px;
+        padding: 6px 12px;
+    }
+    
+    /* Search bar mobile improvements */
+    .search-input {
+        font-size: 16px; /* Prevent zoom on iOS */
+    }
+    
+    .search-btn {
+        white-space: nowrap;
+        font-size: 14px;
+        padding: 6px 10px;
+    }
+    
+    /* Mobile navbar layout */
+    .navbar-brand {
+        margin-right: 8px;
+    }
+    
+    /* Card improvements */
+    .listing-card {
+        margin-bottom: 1.5rem;
+    }
+    
+    .card-img-top {
+        height: 180px;
+    }
+    
+    /* Typography adjustments */
+    body {
+        font-size: 14px;
+    }
+    
+    .nav-link {
+        font-size: 14px;
+        padding: 8px 12px;
+    }
+    
+    /* Map adjustments */
+    #map {
+        height: 35vh;
+    }
+    
+    .show-image {
+        height: 25vh;
+    }
+    
+    /* Footer mobile improvements */
+    .f-info {
+        height: auto;
+        padding: 1.5rem 0;
+    }
+    
+    .f-info-socials,
+    .f-info-links,
+    .f-info-brand {
+        font-size: 1.2rem;
+        margin-bottom: 1rem;
+    }
+    
+    /* Featured image mobile */
+    .featured-image {
+        height: 250px;
+    }
+}
+
+/* Extra small devices */
+@media (max-width: 480px) {
+    .container {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+    
+    .listing-main-title {
+        font-size: 1.5rem;
+    }
+    
+    .card-img-top {
+        height: 160px;
+    }
+    
+    #map {
+        height: 30vh;
+    }
+    
+    .show-image {
+        height: 20vh;
+    }
+    
+    .featured-image {
+        height: 200px;
+    }
+    
+    /* Making filter section more compact */
+    #filters {
+        gap: 8px !important;
+    }
+    
+    #filters .filter {
+        min-width: 70px;
+        font-size: 11px;
+        padding: 6px 8px;
+    }
+    
+    .tax-toggle-switch {
+        font-size: 12px;
+        padding: 4px 8px;
+    }
+    
+    /* Navbar adjustments for very small screens */
+    .air-bnb-account {
+        font-size: 13px;
+        padding: 6px 10px;
+    }
+    
+    /* Footer stack vertically on very small screens */
+    .f-info {
+        flex-direction: column;
+        text-align: center;
     }
 }
